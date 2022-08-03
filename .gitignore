@@ -1,0 +1,11 @@
+.Rproj.user
+.Rhistory
+.Rdata
+.httr-oauth
+.DS_Store
+workflow.R
+inst/doc
+/doc/
+/Meta/
+data-raw/acc_data.csv
+impactr_test/
