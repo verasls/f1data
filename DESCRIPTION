@@ -1,0 +1,12 @@
+Package: f1results
+Title: Formula 1 Results
+Version: 0.0.0.9000
+Authors@R: 
+    person("Lucas", "Veras", , "lucasdsveras@gmail.com", role = c("aut", "cre"),
+           comment = c(ORCID = "0000-0003-0562-5803"))
+Description: Functions to read data from Formula 1 sessions (free practice,
+    qualifying, sprint race and race) and to do some exploration on these data.
+License: MIT + file LICENSE
+Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.2.1
