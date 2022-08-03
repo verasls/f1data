@@ -1,0 +1,5 @@
+^LICENSE\.md$
+^README\.Rmd$
+^workflow\.R$
+^\.github$
+^doc$
