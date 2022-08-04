@@ -3,6 +3,17 @@ read_results <- function(season, round, session) {
 
   url <- urls[which(urls$season == season), ]
 
+  sprint_weekend <- is_sprint_weekend(season, round)
+
+  if (isTRUE(sprint_weekend) && grepl("FP3", session, ignore.case = TRUE)) {
+    msg <- glue::glue(
+      "This round ({round}) of the {season} season is a sprint weekend \\
+      and does not have the specified session ({session}). \\
+      Please, try another one."
+    )
+    rlang::abort(msg)
+  }
+
   if (is.numeric(round)) {
     idx <- which(url$round_num == round)
   } else if (is.character(round)) {
@@ -66,6 +77,18 @@ read_results <- function(season, round, session) {
 
   results
 
+}
+
+is_sprint_weekend <- function(season, round) {
+  sprint <- sprint[which(sprint$season == season), ]
+
+  if (is.numeric(round)) {
+    idx <- which(sprint$round_num == round)
+  } else if (is.character(round)) {
+    idx <- which(sprint$round_name == round)
+  }
+
+  !identical(idx, integer(0))
 }
 
 format_results <- function(results) {
