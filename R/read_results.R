@@ -1,8 +1,7 @@
 #' @importFrom rlang .data
 read_results <- function(season, round, session) {
 
-  url <- f1results:::urls
-  url <- url[which(url$season == season), ]
+  url <- urls[which(urls$season == season), ]
 
   if (is.numeric(round)) {
     idx <- which(url$round_num == round)
