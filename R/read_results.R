@@ -1,3 +1,4 @@
+#' @importFrom rlang .data
 read_results <- function(url, round, session) {
   if (grepl("FP", session, ignore.case = TRUE)) {
     session2 <- paste0("practice-", substr(session, 3, 3))
@@ -19,19 +20,20 @@ read_results <- function(url, round, session) {
   if (grepl("FP", session, ignore.case = TRUE)) {
     results <- dplyr::select(
       results,
-      position = Pos, driver = Driver, team = Car,
-      time = Time, gap = Gap, laps = Laps
+      position = .data$Pos, driver = .data$Driver, team = .data$Car,
+      time = .data$Time, gap = .data$Gap, laps = .data$Laps
     )
   } else if (grepl("quali", session, ignore.case = TRUE)) {
     results <- dplyr::select(
       results,
-      position = Pos, driver = Driver, team = Car, time = Time
+      position = .data$Pos, driver = .data$Driver,
+      team = .data$Car, time = .data$Time
     )
   } else if (grepl("race", session, ignore.case = TRUE)) {
     results <- dplyr::select(
       results,
-      position = Pos, driver = Driver, team = Car,
-      laps = Laps, time = `Time/Retired`, points = PTS
+      position = .data$Pos, driver = .data$Driver, team = .data$Car,
+      laps = .data$Laps, time = .data$`Time/Retired`, points = .data$PTS
     )
   }
 
@@ -42,7 +44,7 @@ read_results <- function(url, round, session) {
     round = round,
     session = session,
     position = ifelse(
-      time == "DNF", "DNF", position
+      .data$time == "DNF", "DNF", .data$position
     ),
     .before = 1
   )
@@ -60,7 +62,7 @@ format_results <- function(results) {
 format_driver <- function(results) {
   dplyr::mutate(
     results,
-    driver = substr(driver, nchar(driver) - 2, nchar(driver))
+    driver = substr(.data$driver, nchar(.data$driver) - 2, nchar(.data$driver))
   )
 }
 
@@ -68,16 +70,16 @@ format_team <- function(results) {
   dplyr::mutate(
     results,
     team = dplyr::case_when(
-      grepl("^Mercedes$", team)   ~ "Mercedes",
-      grepl("Red Bull", team)     ~ "Red Bull Racing",
-      grepl("^Ferrari$", team)    ~ "Ferrari",
-      grepl("McLaren", team)      ~ "McLaren",
-      grepl("Alpine", team)       ~ "Alpine",
-      grepl("AlphaTauri", team)   ~ "AlphaTauri",
-      grepl("Aston Martin", team) ~ "Aston Martin",
-      grepl("Williams", team)     ~ "Williams",
-      grepl("Alfa Romeo", team)   ~ "Alfa Romeo",
-      grepl("Haas", team)         ~ "Haas"
+      grepl("^Mercedes$", .data$team)   ~ "Mercedes",
+      grepl("Red Bull", .data$team)     ~ "Red Bull Racing",
+      grepl("^Ferrari$", .data$team)    ~ "Ferrari",
+      grepl("McLaren", .data$team)      ~ "McLaren",
+      grepl("Alpine", .data$team)       ~ "Alpine",
+      grepl("AlphaTauri", .data$team)   ~ "AlphaTauri",
+      grepl("Aston Martin", .data$team) ~ "Aston Martin",
+      grepl("Williams", .data$team)     ~ "Williams",
+      grepl("Alfa Romeo", .data$team)   ~ "Alfa Romeo",
+      grepl("Haas", .data$team)         ~ "Haas"
     )
   )
 }
