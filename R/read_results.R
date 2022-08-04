@@ -35,7 +35,7 @@ read_results <- function(url, round, session) {
     )
   }
 
-  results <- format_data(results)
+  results <- format_results(results)
   results <- dplyr::mutate(
     results,
     season = 2022,
@@ -51,21 +51,22 @@ read_results <- function(url, round, session) {
 
 }
 
-format_data <- function(data) {
-  format_driver(data) |>
-    format_team()
+format_results <- function(results) {
+  results <- format_driver(results)
+  results <- format_team(results)
+  results
 }
 
-format_driver <- function(data) {
+format_driver <- function(results) {
   dplyr::mutate(
-    data,
+    results,
     driver = substr(driver, nchar(driver) - 2, nchar(driver))
   )
 }
 
-format_team <- function(data) {
+format_team <- function(results) {
   dplyr::mutate(
-    data,
+    results,
     team = dplyr::case_when(
       grepl("^Mercedes$", team)   ~ "Mercedes",
       grepl("Red Bull", team)     ~ "Red Bull Racing",
