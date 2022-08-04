@@ -1,5 +1,18 @@
 #' @importFrom rlang .data
-read_results <- function(url, round, session) {
+read_results <- function(season, round, session) {
+
+  url <- f1results:::urls
+  url <- url[which(url$season == season), ]
+
+  if (is.numeric(round)) {
+    idx <- which(url$round_num == round)
+  } else if (is.character(round)) {
+    idx <- which(url$round_name == round)
+  }
+
+  round <- paste(url$round_num[idx], "-", url$round_name[idx])
+  url <- url$url[idx]
+
   if (grepl("FP", session, ignore.case = TRUE)) {
     session2 <- paste0("practice-", substr(session, 3, 3))
     url2 <- paste0(url, session2, ".html")
@@ -40,11 +53,14 @@ read_results <- function(url, round, session) {
   results <- format_results(results)
   results <- dplyr::mutate(
     results,
-    season = 2022,
+    season = season,
     round = round,
     session = session,
     position = ifelse(
       .data$time == "DNF", "DNF", .data$position
+    ),
+    position = ifelse(
+      .data$time == "DNS", "DNS", .data$position
     ),
     .before = 1
   )
