@@ -23,17 +23,33 @@ read_results <- function(season, round, session) {
   round <- paste(url$round_num[idx], "-", url$round_name[idx])
   url <- url$url[idx]
 
-  if (grepl("FP", session, ignore.case = TRUE)) {
-    session2 <- paste0("practice-", substr(session, 3, 3))
-    url2 <- paste0(url, session2, ".html")
-  } else if (grepl("quali", session, ignore.case = TRUE)) {
-    session <- "Qualifying"
-    session2 <- "starting-grid"
-    url2 <- paste0(url, session2, ".html")
-  } else if (grepl("race", session, ignore.case = TRUE)) {
-    session <- "Race"
-    session2 <- "race-result"
-    url2 <- paste0(url, session2, ".html")
+  if (isFALSE(sprint_weekend)) {
+    if (grepl("FP", session, ignore.case = TRUE)) {
+      session2 <- paste0("practice-", substr(session, 3, 3))
+      url2 <- paste0(url, session2, ".html")
+    } else if (grepl("quali", session, ignore.case = TRUE)) {
+      session <- "Qualifying"
+      session2 <- "starting-grid"
+      url2 <- paste0(url, session2, ".html")
+    } else if (grepl("race", session, ignore.case = TRUE)) {
+      session <- "Race"
+      session2 <- "race-result"
+      url2 <- paste0(url, session2, ".html")
+    }
+  } else if (isTRUE(sprint_weekend)) {
+    if (grepl("quali", session, ignore.case = TRUE)) {
+      session <- "Qualifying"
+      session2 <- "sprint-grid"
+      url2 <- paste0(url, session2, ".html")
+    } else if (grepl("sprint", session, ignore.case = TRUE)) {
+      session <- "Sprint race"
+      session2 <- "sprint-results"
+      url2 <- paste0(url, session2, ".html")
+    } else if (grepl("race", session, ignore.case = TRUE)) {
+      session <- "Race"
+      session2 <- "race-result"
+      url2 <- paste0(url, session2, ".html")
+    }
   }
 
   results <- rvest::read_html(url2)
