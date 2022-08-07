@@ -12,6 +12,15 @@ read_results <- function(season, round, session) {
       Please, try another one."
     )
     rlang::abort(msg)
+  } else if (
+    isFALSE(sprint_weekend) && grepl("sprint", session, ignore.case = TRUE)
+  ) {
+    msg <- glue::glue(
+      "This round ({round}) of the {season} season is not a sprint weekend \\
+      and does not have the specified session ({session}). \\
+      Please, try another one."
+    )
+    rlang::abort(msg)
   }
 
   if (is.numeric(round)) {
