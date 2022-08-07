@@ -1,5 +1,5 @@
 #' @importFrom rlang .data
-read_results <- function(season, round, session) {
+get_results <- function(season, round, session) {
 
   url <- urls[which(urls$season == season), ]
 
