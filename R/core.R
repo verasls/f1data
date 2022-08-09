@@ -20,7 +20,7 @@ get_schedule <- function(season) {
   schedule
 }
 
-get_position <- function(season, round, session) {
+get_position <- function(season, round, session, detailed = FALSE) {
   url <- "http://ergast.com/api/f1/"
   if (grepl("race", session, ignore.case = TRUE)) {
     url <- paste0(url, season, "/", round, "/results.json?limit=50")
@@ -28,11 +28,12 @@ get_position <- function(season, round, session) {
 
   results <- jsonlite::fromJSON(httr::content(httr::GET(url), as = "text"))
   results <- tibble::as_tibble(results$MRData$RaceTable$Races$Results[[1]])
-  format_position(results, season, round, session)
+
+  format_position(results, season, round, session, detailed)
 }
 
 #' @importFrom rlang .data
-format_position <- function(results, season, round, session) {
+format_position <- function(results, season, round, session, detailed) {
   schedule <- get_schedule(season)
   idx <- which(schedule$season == season & schedule$round_num == round)
   schedule <- schedule[idx, ]
@@ -63,7 +64,19 @@ format_position <- function(results, season, round, session) {
     driver_name = .data$driver_name, driver_age = .data$driver_age,
     driver_nationality = .data$Driver_nationality,
     constructor = .data$Constructor_name,
-    grid_position = .data$grid, .data$laps, .data$status, time
+    grid_position = .data$grid, .data$laps, .data$status, .data$time
   )
-  results
+
+  if (isTRUE(detailed)) {
+    return(results)
+  } else {
+    results <- dplyr::select(
+      results,
+      .data$season, .data$round_num, .data$round_name,
+      .data$session, .data$position, .data$driver_code,
+      .data$constructor, .data$time
+    )
+    return(results)
+  }
+
 }
