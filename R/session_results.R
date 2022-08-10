@@ -12,6 +12,13 @@ get_session_results <- function(season, round, session, detailed = FALSE) {
       results$MRData$RaceTable$Races$QualifyingResults[[1]]
     )
     format_results_qualifying(results, season, round, session, detailed)
+  } else if (grepl("sprint", session, ignore.case = TRUE)) {
+    url <- paste0(url, season, "/", round, "/sprint.json?limit=50")
+    results <- jsonlite::fromJSON(httr::content(httr::GET(url), as = "text"))
+    results <- tibble::as_tibble(
+      results$MRData$RaceTable$Races$SprintResults[[1]]
+    )
+    format_results_race(results, season, round, session, detailed)
   }
 }
 
