@@ -1,24 +1,38 @@
 get_session_results <- function(season, round, session, detailed = FALSE) {
-  url <- "http://ergast.com/api/f1/"
   if (grepl("race", session, ignore.case = TRUE)) {
+    url <- "http://ergast.com/api/f1/"
     url <- paste0(url, season, "/", round, "/results.json?limit=50")
+
     results <- jsonlite::fromJSON(httr::content(httr::GET(url), as = "text"))
     results <- tibble::as_tibble(results$MRData$RaceTable$Races$Results[[1]])
+
     format_results_race(results, season, round, session, detailed)
   } else if (grepl("qualifying", session, ignore.case = TRUE)) {
+    url <- "http://ergast.com/api/f1/"
     url <- paste0(url, season, "/", round, "/qualifying.json?limit=50")
+
     results <- jsonlite::fromJSON(httr::content(httr::GET(url), as = "text"))
     results <- tibble::as_tibble(
       results$MRData$RaceTable$Races$QualifyingResults[[1]]
     )
+
     format_results_qualifying(results, season, round, session, detailed)
   } else if (grepl("sprint", session, ignore.case = TRUE)) {
+    is_sprint <- is_sprint_weekend(season, round)
+    if (isFALSE(is_sprint)) {
+      rlang::abort("This round does not have a Sprint session.")
+    }
+
+    url <- "http://ergast.com/api/f1/"
     url <- paste0(url, season, "/", round, "/sprint.json?limit=50")
+
     results <- jsonlite::fromJSON(httr::content(httr::GET(url), as = "text"))
     results <- tibble::as_tibble(
       results$MRData$RaceTable$Races$SprintResults[[1]]
     )
+
     format_results_race(results, season, round, session, detailed)
+  } else if (grepl("fp", session, ignore.case = TRUE)) {
   }
 }
 
