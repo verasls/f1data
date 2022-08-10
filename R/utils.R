@@ -1,23 +1,47 @@
 #' @importFrom rlang .data
-get_schedule <- function(season) {
+get_schedule <- function(season, detailed = FALSE) {
   url <- "http://ergast.com/api/f1/"
   url <- paste0(url, season, ".json")
 
   schedule <- jsonlite::fromJSON(httr::content(httr::GET(url), as = "text"))
   schedule <- tibble::as_tibble(schedule$MRData$RaceTable$Races)
-  schedule <- tidyr::unnest(schedule, .data$Circuit, names_sep = "_")
+  schedule <- tidyr::unnest(
+    schedule,
+    c(
+      .data$Circuit, .data$FirstPractice,
+      .data$SecondPractice, .data$ThirdPractice,
+      .data$Qualifying, .data$Sprint
+    ),
+    names_sep = "_"
+  )
   schedule <- dplyr::select(
     schedule,
     season, round_num = round, round_name = .data$raceName,
-    circuit = .data$Circuit_circuitName, date
+    circuit = .data$Circuit_circuitName,
+    FP1_date = .data$FirstPractice_date,
+    FP2_date = .data$SecondPractice_date,
+    FP3_date = .data$ThirdPractice_date,
+    qualifying_date = .data$Qualifying_date,
+    sprint_date = .data$Sprint_date,
+    race_date = .data$date
   )
   schedule <- dplyr::mutate(
     schedule,
     season = as.numeric(.data$season),
     round_num = as.numeric(.data$round_num),
-    date = as.Date(date)
+    dplyr::across(dplyr::ends_with("_date"), as.Date)
   )
-  schedule
+
+  if (isTRUE(detailed)) {
+    return(schedule)
+  } else if (isFALSE(detailed)) {
+    schedule <- dplyr::select(
+      schedule,
+      .data$season, .data$round_num, .data$round_name,
+      .data$circuit, .data$race_date
+    )
+    return(schedule)
+  }
 }
 
 get_f1_urls <- function(season) {
