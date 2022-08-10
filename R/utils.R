@@ -132,3 +132,17 @@ check_f1_urls <- function(season, urls_df) {
     NULL
   }
 }
+
+is_sprint_weekend <- function(season, round) {
+  if (season < 2021) {
+    FALSE
+  } else if (season >= 2021) {
+    schedule <- get_schedule(season, detailed = TRUE)
+    i <- which(schedule$round_num == round)
+    if (is.na(schedule[i, "sprint_date"])) {
+      FALSE
+    } else {
+      TRUE
+    }
+  }
+}
