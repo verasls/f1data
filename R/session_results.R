@@ -25,8 +25,8 @@ get_session_results <- function(season, round, session, detailed = FALSE) {
 #' @importFrom rlang .data
 format_results_race <- function(results, season, round, session, detailed) {
   schedule <- get_schedule(season)
-  idx <- which(schedule$season == season & schedule$round_num == round)
-  schedule <- schedule[idx, ]
+  i <- which(schedule$season == season & schedule$round_num == round)
+  schedule <- schedule[i, ]
 
   results <- tidyr::unnest(
     results,
@@ -37,7 +37,7 @@ format_results_race <- function(results, season, round, session, detailed) {
     driver_name = paste(.data$Driver_givenName, .data$Driver_familyName),
     season = schedule$season, round_num = schedule$round_num,
     round_name = schedule$round_name, circuit = schedule$circuit,
-    session = session, date = schedule$date,
+    session = session, date = schedule$race_date,
     Driver_dateOfBirth = as.Date(.data$Driver_dateOfBirth),
     driver_age = lubridate::interval(.data$Driver_dateOfBirth, .data$date),
     driver_age = lubridate::as.period(.data$driver_age),
@@ -77,8 +77,8 @@ format_results_qualifying <- function(results,
                                       session,
                                       detailed) {
   schedule <- get_schedule(season)
-  idx <- which(schedule$season == season & schedule$round_num == round)
-  schedule <- schedule[idx, ]
+  i <- which(schedule$season == season & schedule$round_num == round)
+  schedule <- schedule[i, ]
 
   results <- tidyr::unnest(
     results,
@@ -89,7 +89,7 @@ format_results_qualifying <- function(results,
     driver_name = paste(.data$Driver_givenName, .data$Driver_familyName),
     season = schedule$season, round_num = schedule$round_num,
     round_name = schedule$round_name, circuit = schedule$circuit,
-    session = session, date = schedule$date,
+    session = session, date = schedule$race_date,
     Driver_dateOfBirth = as.Date(.data$Driver_dateOfBirth),
     driver_age = lubridate::interval(.data$Driver_dateOfBirth, .data$date),
     driver_age = lubridate::as.period(.data$driver_age),
