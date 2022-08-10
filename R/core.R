@@ -1,25 +1,3 @@
-#' @importFrom rlang .data
-get_schedule <- function(season) {
-  url <- "http://ergast.com/api/f1/"
-  url <- paste0(url, season, ".json")
-
-  schedule <- jsonlite::fromJSON(httr::content(httr::GET(url), as = "text"))
-  schedule <- tibble::as_tibble(schedule$MRData$RaceTable$Races)
-  schedule <- tidyr::unnest(schedule, .data$Circuit, names_sep = "_")
-  schedule <- dplyr::select(
-    schedule,
-    season, round_num = round, round_name = .data$raceName,
-    circuit = .data$Circuit_circuitName, date
-  )
-  schedule <- dplyr::mutate(
-    schedule,
-    season = as.numeric(.data$season),
-    round_num = as.numeric(.data$round_num),
-    date = as.Date(date)
-  )
-  schedule
-}
-
 get_position <- function(season, round, session, detailed = FALSE) {
   url <- "http://ergast.com/api/f1/"
   if (grepl("race", session, ignore.case = TRUE)) {
