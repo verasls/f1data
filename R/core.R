@@ -1,4 +1,4 @@
-get_position <- function(season, round, session, detailed = FALSE) {
+get_session_results <- function(season, round, session, detailed = FALSE) {
   url <- "http://ergast.com/api/f1/"
   if (grepl("race", session, ignore.case = TRUE)) {
     url <- paste0(url, season, "/", round, "/results.json?limit=50")
