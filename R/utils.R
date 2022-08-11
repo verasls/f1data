@@ -169,7 +169,7 @@ get_drivers_info <- function(season, round) {
   info <- dplyr::mutate(
     info,
     driver_num = ifelse(
-      driver_code == "VER" && season == 2022,
+      .data$driver_code == "VER" && season == 2022,
       1, .data$driver_num
     )
   )
