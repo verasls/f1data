@@ -33,6 +33,20 @@ get_session_results <- function(season, round, session, detailed = FALSE) {
 
     format_results_race(results, season, round, session, detailed)
   } else if (grepl("fp", session, ignore.case = TRUE)) {
+    url <- get_f1_urls(season)
+    i <- which(url$round_num == round)
+    url <- url[i, "urls"]
+    url <- paste0(
+      url, "practice-",
+      substr(session, nchar(session), nchar(session)),
+      ".html"
+    )
+
+    results <- rvest::read_html(url)
+    results <- rvest::html_element(results, "body")
+    results <- rvest::html_table(results)
+
+    format_results_practice(results, season, round, session, detailed)
   }
 }
 
@@ -131,6 +145,57 @@ format_results_qualifying <- function(results,
       .data$season, .data$round_num, .data$round_name,
       .data$session, .data$position, .data$driver_code,
       .data$constructor, .data$Q1, .data$Q2, .data$Q3
+    )
+    return(results)
+  }
+}
+
+#' @importFrom rlang .data
+format_results_practice <- function(results, season, round, session, detailed) {
+  results <- dplyr::select(
+    results,
+    position = .data$Pos, driver_num = .data$No, constructor = .data$Car,
+    time = .data$Time, laps = .data$Laps
+  )
+  results <- dplyr::mutate(
+    results,
+    time = lubridate::ms(results$time, quiet = TRUE)
+  )
+
+  info <- get_drivers_info(season, round)
+  schedule <- get_schedule(season)
+  i <- which(schedule$season == season & schedule$round_num == round)
+  schedule <- schedule[i, ]
+
+  results <- dplyr::left_join(
+    results, info, by = "driver_num"
+  )
+  results <- dplyr::mutate(
+    results,
+    season = schedule$season, round_num = schedule$round_num,
+    round_name = schedule$round_name, circuit = schedule$circuit,
+    session = session, date = schedule$race_date,
+    driver_age = lubridate::interval(.data$dob, .data$date),
+    driver_age = lubridate::as.period(.data$driver_age),
+  )
+  results <- dplyr::select(
+    results,
+    season = .data$season, round_num = .data$round_num,
+    round_name = .data$round_name, circuit = .data$circuit,
+    session = session, .data$position, .data$driver_num,
+    .data$driver_code, .data$driver_name, .data$driver_age,
+    driver_nationality = .data$nationality, .data$constructor,
+    .data$laps, .data$time
+  )
+
+  if (isTRUE(detailed)) {
+    return(results)
+  } else {
+    results <- dplyr::select(
+      results,
+      .data$season, .data$round_num, .data$round_name,
+      .data$session, .data$position, .data$driver_code,
+      .data$constructor, .data$time
     )
     return(results)
   }
