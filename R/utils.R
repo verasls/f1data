@@ -146,3 +146,32 @@ is_sprint_weekend <- function(season, round) {
     }
   }
 }
+
+get_drivers_info <- function(season, round) {
+  url <- glue::glue(
+    "http://ergast.com/api/f1/{season}/{round}/drivers.json?limit=50"
+  )
+
+  info <- jsonlite::fromJSON(httr::content(httr::GET(url), as = "text"))
+  info <- tibble::as_tibble(info$MRData$DriverTable$Drivers)
+  info <- dplyr::mutate(
+    info,
+    driver_num = as.integer(.data$permanentNumber),
+    driver_name = paste(.data$givenName, .data$familyName),
+    dob = as.Date(.data$dateOfBirth)
+  )
+  info <- dplyr::select(
+    info,
+    .data$driver_num, driver_code = .data$code,
+    .data$driver_name, .data$dob, .data$nationality
+  )
+  info <- dplyr::rowwise(info)
+  info <- dplyr::mutate(
+    info,
+    driver_num = ifelse(
+      driver_code == "VER" && season == 2022,
+      1, .data$driver_num
+    )
+  )
+  dplyr::ungroup(info)
+}
