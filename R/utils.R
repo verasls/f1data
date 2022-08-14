@@ -175,3 +175,15 @@ get_drivers_info <- function(season, round) {
   )
   dplyr::ungroup(info)
 }
+
+get_constructors <- function(season) {
+  url <- glue::glue(
+    "http://ergast.com/api/f1/{season}/constructors.json?limit=50"
+  )
+  constructors <- jsonlite::fromJSON(httr::content(httr::GET(url), as = "text"))
+  constructors <- constructors$MRData$ConstructorTable$Constructors$name
+  constructors <- trimws(
+    gsub("f1|team|scuderia|racing", "", constructors, ignore.case = TRUE)
+  )
+  constructors
+}
