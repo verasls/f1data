@@ -84,6 +84,9 @@ format_results_race <- function(results, season, round, session, detailed) {
     constructor = .data$Constructor_name,
     grid_position = .data$grid, .data$laps, .data$status, .data$time
   )
+  results$constructor <- trimws(
+    gsub("f1|team|scuderia|racing", "", results$constructor, ignore.case = TRUE)
+  )
 
   if (isTRUE(detailed)) {
     return(results)
@@ -136,6 +139,9 @@ format_results_qualifying <- function(results,
     constructor = .data$Constructor_name,
     .data$Q1, .data$Q2, .data$Q3
   )
+  results$constructor <- trimws(
+    gsub("f1|team|scuderia|racing", "", results$constructor, ignore.case = TRUE)
+  )
 
   if (isTRUE(detailed)) {
     return(results)
@@ -187,6 +193,23 @@ format_results_practice <- function(results, season, round, session, detailed) {
     driver_nationality = .data$nationality, .data$constructor,
     .data$laps, .data$time
   )
+
+  # Remove the last word from constructors with more than one word in their
+  # names, as from the official formula 1 api results it usually indicates
+  # the power unit supplier.
+  i <- stringi::stri_count_regex(results$constructor, "\\W+") + 1
+  i <- which(i > 1)
+  j <- stringi::stri_locate_last_regex(results$constructor[i], "\\W+")[, 1]
+  results$constructor[i] <- substr(results$constructor[i], 1, j - 1)
+  results$constructor <- trimws(
+    gsub("f1|team|scuderia|racing", "", results$constructor, ignore.case = TRUE)
+  )
+  # Match constructor names with the ones obtained with the ergast api
+  constructors <- get_constructors(2022)
+  k <- purrr::map(constructors, ~ grep(.x, results$constructor))
+  for (l in seq_along(constructors)) {
+    results$constructor[k[[l]][1:2]] <- constructors[l]
+  }
 
   if (isTRUE(detailed)) {
     return(results)
