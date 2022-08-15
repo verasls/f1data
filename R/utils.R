@@ -1,7 +1,8 @@
 #' @importFrom rlang .data
 get_schedule <- function(season, detailed = FALSE) {
-  url <- "http://ergast.com/api/f1/"
-  url <- paste0(url, season, ".json")
+  url <- glue::glue(
+    "http://ergast.com/api/f1/{season}.json"
+  )
 
   schedule <- jsonlite::fromJSON(httr::content(httr::GET(url), as = "text"))
   schedule <- tibble::as_tibble(schedule$MRData$RaceTable$Races)
