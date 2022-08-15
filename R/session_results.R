@@ -33,6 +33,10 @@ get_session_results <- function(season, round, session, detailed = FALSE) {
 
     format_results_race(results, season, round, session, detailed)
   } else if (grepl("fp", session, ignore.case = TRUE)) {
+    is_sprint <- is_sprint_weekend(season, round)
+    if (isTRUE(is_sprint) && grepl("fp3", session, ignore.case = TRUE)) {
+      rlang::abort("This round does not have a free practice 3 session.")
+    }
     url <- get_f1_urls(season)
     i <- which(url$round_num == round)
     url <- url[i, "urls"]
