@@ -212,7 +212,7 @@ format_results_practice <- function(results, season, round, session, detailed) {
   constructors <- get_constructors(2022)
   k <- purrr::map(constructors, ~ grep(.x, results$constructor))
   for (l in seq_along(constructors)) {
-    results$constructor[k[[l]][1:2]] <- constructors[l]
+    results$constructor[k[[l]]] <- constructors[l]
   }
 
   if (isTRUE(detailed)) {
