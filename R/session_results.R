@@ -1,4 +1,5 @@
 get_session_results <- function(season, round, session, detailed = FALSE) {
+  round <- get_round(round)
   if (grepl("race|qualifying|sprint", session, ignore.case = TRUE)) {
     parse_ergast_session_results(season, round, session, detailed)
   } else if (grepl("fp", session, ignore.case = TRUE)) {

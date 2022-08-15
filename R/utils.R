@@ -188,3 +188,28 @@ get_constructors <- function(season) {
   )
   constructors
 }
+
+get_round <- function(round) {
+  round <- glue::glue(" {round} ")
+  i <- stringi::stri_locate_all_regex(rounds$names, round)
+  i <- which(!is.na(purrr::map_dbl(i, 1)))
+  round <- trimws(round)
+  round_num <- rounds$round_num[i[1]]
+  round_name <- rounds$round_name[i[1]]
+  if (length(i) > 1) {
+    rlang::warn(
+      glue::glue(
+        "More than one match was found with `round = \"{round}\"`.
+        Using the first value (Round {round_num} - {round_name})."
+      )
+    )
+  } else if (identical(i, integer(0))) {
+    rlang::abort(
+      glue::glue(
+        "No match was found with `round = \"{round}\"`. Please, try again.
+        If you need help finding the correct round, try `get_schedule(season)`"
+      )
+    )
+  }
+  round_num
+}
