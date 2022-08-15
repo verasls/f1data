@@ -1,4 +1,12 @@
 get_session_results <- function(season, round, session, detailed = FALSE) {
+  if (grepl("race|qualifying|sprint", session, ignore.case = TRUE)) {
+    parse_ergast_session_results(season, round, session, detailed)
+  } else if (grepl("fp", session, ignore.case = TRUE)) {
+    parse_f1_session_results(season, round, session, detailed)
+  }
+}
+
+parse_ergast_session_results <- function(season, round, session, detailed) {
   if (grepl("race", session, ignore.case = TRUE)) {
     url <- glue::glue(
       "http://ergast.com/api/f1/{season}/{round}/results.json?limit=50"
@@ -35,26 +43,28 @@ get_session_results <- function(season, round, session, detailed = FALSE) {
     )
 
     format_results_race(results, season, round, session, detailed)
-  } else if (grepl("fp", session, ignore.case = TRUE)) {
-    is_sprint <- is_sprint_weekend(season, round)
-    if (isTRUE(is_sprint) && grepl("fp3", session, ignore.case = TRUE)) {
-      rlang::abort("This round does not have a free practice 3 session.")
-    }
-    url <- get_f1_urls(season)
-    i <- which(url$round_num == round)
-    url <- url[i, "urls"]
-    url <- paste0(
-      url, "practice-",
-      substr(session, nchar(session), nchar(session)),
-      ".html"
-    )
-
-    results <- rvest::read_html(url)
-    results <- rvest::html_element(results, "body")
-    results <- rvest::html_table(results)
-
-    format_results_practice(results, season, round, session, detailed)
   }
+}
+
+parse_f1_session_results <- function(season, round, session, detailed) {
+  is_sprint <- is_sprint_weekend(season, round)
+  if (isTRUE(is_sprint) && grepl("fp3", session, ignore.case = TRUE)) {
+    rlang::abort("This round does not have a free practice 3 session.")
+  }
+  url <- get_f1_urls(season)
+  i <- which(url$round_num == round)
+  url <- url[i, "urls"]
+  url <- paste0(
+    url, "practice-",
+    substr(session, nchar(session), nchar(session)),
+    ".html"
+  )
+
+  results <- rvest::read_html(url)
+  results <- rvest::html_element(results, "body")
+  results <- rvest::html_table(results)
+
+  format_results_practice(results, season, round, session, detailed)
 }
 
 #' @importFrom rlang .data
