@@ -78,6 +78,10 @@ format_results_race <- function(results, season, round, session, detailed) {
     results,
     c(.data$Driver, .data$Constructor, .data$Time), names_sep = "_"
   )
+  if (grepl("race", session, ignore.case = TRUE)) {
+    results <- tidyr::unnest(results, .data$FastestLap, names_sep = "_")
+    results <- tidyr::unnest(results, .data$FastestLap_Time, names_sep = "_")
+  }
   results <- dplyr::mutate(
     results,
     driver_name = paste(.data$Driver_givenName, .data$Driver_familyName),
@@ -91,18 +95,42 @@ format_results_race <- function(results, season, round, session, detailed) {
       as.numeric(.data$Time_millis) / 1000
     )
   )
-  results <- dplyr::select(
-    results,
-    season = .data$season, round_num = .data$round_num,
-    round_name = .data$round_name, circuit = .data$circuit,
-    session = session, position = .data$positionText,
-    driver_num = .data$number, driver_code = .data$Driver_code,
-    driver_name = .data$driver_name, driver_age = .data$driver_age,
-    driver_nationality = .data$Driver_nationality,
-    constructor = .data$Constructor_name,
-    grid_position = .data$grid, .data$laps, .data$status,
-    .data$points, .data$time
-  )
+  if (grepl("race", session, ignore.case = TRUE)) {
+    results <- dplyr::mutate(
+      results,
+      fastest_lap_time = lubridate::ms(.data$FastestLap_Time_time, quiet = TRUE)
+    )
+  }
+  if (grepl("race", session, ignore.case = TRUE)) {
+    results <- dplyr::select(
+      results,
+      season = .data$season, round_num = .data$round_num,
+      round_name = .data$round_name, circuit = .data$circuit,
+      session = session, position = .data$positionText,
+      driver_num = .data$number, driver_code = .data$Driver_code,
+      driver_name = .data$driver_name, driver_age = .data$driver_age,
+      driver_nationality = .data$Driver_nationality,
+      constructor = .data$Constructor_name,
+      grid_position = .data$grid, .data$laps, .data$status,
+      .data$points, .data$time,
+      fastest_lap_rank = .data$FastestLap_rank,
+      .data$fastest_lap_time,
+      fastest_lap_lap = .data$FastestLap_lap
+    )
+  } else {
+    results <- dplyr::select(
+      results,
+      season = .data$season, round_num = .data$round_num,
+      round_name = .data$round_name, circuit = .data$circuit,
+      session = session, position = .data$positionText,
+      driver_num = .data$number, driver_code = .data$Driver_code,
+      driver_name = .data$driver_name, driver_age = .data$driver_age,
+      driver_nationality = .data$Driver_nationality,
+      constructor = .data$Constructor_name,
+      grid_position = .data$grid, .data$laps, .data$status,
+      .data$points, .data$time
+    )
+  }
   results$constructor <- trimws(
     gsub("f1|team|scuderia|racing", "", results$constructor, ignore.case = TRUE)
   )
