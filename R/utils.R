@@ -190,7 +190,11 @@ get_constructors <- function(season) {
 }
 
 get_round <- function(round) {
-  round <- glue::glue(" {round} ")
+  if (nchar(round) <= 3) {
+    # Probably a country abbreviation (e.g., uk, usa, uae). Put some whitespace
+    # around the round name to not find false matches (e.g., find uk in baku).
+    round <- glue::glue(" {round} ")
+  }
   i <- stringi::stri_locate_all_regex(rounds$names, round)
   i <- which(!is.na(purrr::map_dbl(i, 1)))
   round <- trimws(round)
