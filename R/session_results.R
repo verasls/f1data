@@ -100,7 +100,8 @@ format_results_race <- function(results, season, round, session, detailed) {
     driver_name = .data$driver_name, driver_age = .data$driver_age,
     driver_nationality = .data$Driver_nationality,
     constructor = .data$Constructor_name,
-    grid_position = .data$grid, .data$laps, .data$status, .data$time
+    grid_position = .data$grid, .data$laps, .data$status,
+    .data$points, .data$time
   )
   results$constructor <- trimws(
     gsub("f1|team|scuderia|racing", "", results$constructor, ignore.case = TRUE)
@@ -113,7 +114,7 @@ format_results_race <- function(results, season, round, session, detailed) {
       results,
       .data$season, .data$round_num, .data$round_name,
       .data$session, .data$position, .data$driver_code,
-      .data$constructor, .data$time
+      .data$constructor, .data$points, .data$time
     )
     return(results)
   }
